@@ -1,0 +1,14 @@
+node_modules/
+npm-debug.log
+package-lock.json
+.env
+.env.local
+.DS_Store
+Thumbs.db
+dist/
+out/
+.vscode/
+.idea/
+*.swp
+*.log
+logs/
