@@ -1,0 +1,28 @@
+{
+  "color": {
+    "brand": {
+      "primary": {
+        "$value": "#2563EB",
+        "$type": "color"
+      },
+      "secondary": {
+        "$value": "#7C3AED",
+        "$type": "color"
+      }
+    }
+  },
+  "spacing": {
+    "sm": {
+      "$value": "8px",
+      "$type": "dimension"
+    },
+    "md": {
+      "$value": "16px",
+      "$type": "dimension"
+    },
+    "lg": {
+      "$value": "24px",
+      "$type": "dimension"
+    }
+  }
+}
