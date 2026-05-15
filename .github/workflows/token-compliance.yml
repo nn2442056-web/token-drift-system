@@ -1,0 +1,40 @@
+name: Token Compliance Check
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  check-tokens:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      
+      - name: Check for token violations
+        run: bash scripts/token-checker.sh
+        continue-on-error: true
+      
+      - name: Report violations
+        if: failure()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '❌ **Token Drift Violation Found**\n\nThis PR contains hard-coded design tokens. Please use design tokens from `tokens.dtcg.json` instead.\n\n**Action Required:**\n1. Review the violations in the build logs\n2. Replace hard-coded values with token references\n3. Push changes'
+            })
+      
+      - name: Set status check
+        if: failure()
+        run: exit 1
