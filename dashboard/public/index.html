@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Token Drift Dashboard - Compliance Metrics</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    header {
+      color: white;
+      margin-bottom: 40px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    header p {
+      font-size: 1.1em;
+      opacity: 0.9;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    .metric-card {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .metric-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+    }
+
+    .metric-label {
+      font-size: 0.95em;
+      color: #666;
+      margin-bottom: 15px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .metric-value {
+      font-size: 2.8em;
+      font-weight: bold;
+      color: #667eea;
+      margin-bottom: 20px;
+    }
+
+    .metric-trend {
+      font-size: 0.9em;
+      color: #999;
+      line-height: 1.6;
+      border-top: 1px solid #eee;
+      padding-top: 15px;
+    }
+
+    .chart-container {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      margin-bottom: 20px;
+    }
+
+    .chart-title {
+      color: #333;
+      margin-bottom: 20px;
+      font-size: 1.5em;
+    }
+
+    .chart-placeholder {
+      background: #f5f5f5;
+      border-radius: 8px;
+      padding: 60px;
+      text-align: center;
+      color: #999;
+      border: 2px dashed #ddd;
+    }
+
+    .error {
+      background: #fee;
+      color: #c33;
+      padding: 20px;
+      border-radius: 8px;
+      border-left: 4px solid #c33;
+      margin: 20px 0;
+    }
+
+    #error-container {
+      margin-bottom: 20px;
+    }
+
+    #content {
+      min-height: 100px;
+    }
+
+    .footer {
+      text-align: center;
+      color: white;
+      margin-top: 40px;
+      font-size: 0.9em;
+      opacity: 0.8;
+    }
+
+    .loading {
+      text-align: center;
+      color: white;
+      font-size: 1.2em;
+    }
+
+    @media (max-width: 768px) {
+      header h1 {
+        font-size: 1.8em;
+      }
+
+      .metrics-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .metric-value {
+        font-size: 2em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>📊 Token Drift Dashboard</h1>
+      <p>Real-time Design Token Compliance Metrics</p>
+    </header>
+
+    <div id="error-container"></div>
+    <div id="content" class="loading">Loading metrics...</div>
+
+    <div class="footer">
+      <p>Last updated: <span id="lastUpdate">--:--:--</span></p>
+    </div>
+  </div>
+
+  <script>
+    async function loadDashboard() {
+      try {
+        const response = await fetch('/api/metrics/compliance');
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        const current = data.current;
+
+        // Clear error if load succeeds
+        document.getElementById('error-container').innerHTML = '';
+
+        // Build HTML for metrics
+        const html = `
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-label">📊 Compliance This Week</div>
+              <div class="metric-value">${current.percentage}%</div>
+              <div class="metric-trend">
+                ✓ Up 5% from last week<br>
+                Target: 90%
+              </div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-label">⚠️ Violations Found</div>
+              <div class="metric-value">${current.violations}</div>
+              <div class="metric-trend">
+                Down 3 from last week<br>
+                Tracked in GitHub Actions
+              </div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-label">✅ Approved Exceptions</div>
+              <div class="metric-value">${current.exceptions}</div>
+              <div class="metric-trend">
+                Design lead reviewed<br>
+                Legitimate reasons
+              </div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-label">👥 Team Members</div>
+              <div class="metric-value">${current.developers}</div>
+              <div class="metric-trend">
+                Average compliance: 85%<br>
+                See individual stats (coming soon)
+              </div>
+            </div>
+          </div>
+
+          <div class="chart-container">
+            <h2 class="chart-title">📈 90-Day Compliance Trend</h2>
+            <div class="chart-placeholder">
+              Trend chart renders here (real database integration coming)
+            </div>
+          </div>
+
+          <div style="background: #E8F5F0; padding: 20px; border-radius: 8px; border-left: 4px solid #1A8A5A;">
+            <p><strong>Next Report:</strong> Friday at 9 AM</p>
+            <p><strong>Last Updated:</strong> ${data.lastUpdated}</p>
+            <p style="margin-top: 10px; color: #999; font-size: 12px;">
+              ⚠️ Currently showing MOCK DATA. Real database integration coming in Phase 2.
+            </p>
+          </div>
+        `;
+
+        document.getElementById('content').innerHTML = html;
+        document.getElementById('lastUpdate').textContent = new Date().toLocaleString();
+
+      } catch (error) {
+        document.getElementById('error-container').innerHTML = `
+          <div class="error">
+            ⚠️ ${error.message}<br>
+            <small>Make sure dashboard server is running: npm start</small>
+          </div>
+        `;
+        document.getElementById('content').innerHTML = '';
+      }
+    }
+
+    // Load on page load
+    loadDashboard();
+
+    // Refresh every 30 seconds
+    setInterval(loadDashboard, 30000);
+  </script>
+</body>
+</html>
