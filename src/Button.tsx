@@ -1,6 +1,7 @@
 import React from 'react';
 
 export const Button = () => {
+  const badColor = "#FF0000";
   return (
     <button style={{
       backgroundColor: "#2563EB",      // ← Should highlight (matches primary token)
